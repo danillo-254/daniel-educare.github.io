@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyHub - Notes & Videos</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; }
+        
+        /* Navbar */
+        nav { background: var(--card-bg); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--primary); cursor: pointer; }
+        .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+        .nav-links button { background: none; border: none; font-size: 1rem; cursor: pointer; color: var(--text-main); font-weight: 500; }
+        .nav-links button:hover { color: var(--primary); }
+        .btn { background: var(--primary); color: white; padding: 0.5rem 1rem; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; transition: background 0.2s; }
+        .btn:hover { background: var(--primary-hover); }
+
+        /* Container & Views */
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+        .view { display: none; }
+        .view.active { display: block; }
+
+        /* Hero / Landing */
+        .hero { text-align: center; padding: 4rem 1rem; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .hero h1 { font-size: 2.5rem; margin-bottom: 1rem; color: var(--text-main); }
+        .hero p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2rem; }
+
+        /* Auth Modal / Card */
+        .auth-card { max-width: 400px; margin: 3rem auto; background: var(--card-bg); padding: 2rem; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .auth-card h2 { margin-bottom: 1.5rem; text-align: center; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; }
+        .form-group input, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); }
+
+        /* Dashboard & Grids */
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+        .card { background: var(--card-bg); border-radius: 8px; border: 1px solid var(--border); padding: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; }
+        .card h3 { margin-bottom: 0.5rem; }
+        .card p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem; }
+        
+        /* Upload & Contact sections */
+        .form-container { max-width: 600px; margin: 0 auto; background: var(--card-bg); padding: 2rem; border-radius: 12px; border: 1px solid var(--border); }
+
+        /* Footer */
+        footer { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.9rem; margin-top: 4rem; border-top: 1px solid var(--border); background: var(--card-bg); }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            nav { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <div class="logo" onclick="switchView('home')">StudyHub</div>
+        <div class="nav-links" id="navLinks">
+            <button onclick="switchView('home')">Home</button>
+            <button onclick="switchView('dashboard')">Library</button>
+            <button onclick="switchView('contact')">Contact</button>
+            <button class="btn" onclick="switchView('auth')" id="authNavBtn">Log In</button>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <!-- HOME VIEW -->
+        <div id="home" class="view active">
+            <div class="hero">
+                <h1>Upload, Share & Learn Notes & Videos</h1>
+                <p>Your free decentralized platform to manage study notes, instructional videos, and connect seamlessly.</p>
+                <button class="btn" onclick="switchView('dashboard')" style="font-size: 1.1rem; padding: 0.75rem 1.5rem;">Explore Library</button>
+            </div>
+        </div>
+
+        <!-- AUTHENTICATION VIEW -->
+        <div id="auth" class="view">
+            <div class="auth-card">
+                <h2 id="authTitle">Welcome Back</h2>
+                <form id="authForm" onsubmit="handleAuth(event)">
+                    <div class="form-group" id="nameGroup" style="display:none;">
+                        <label>Full Name</label>
+                        <input type="text" id="authName" placeholder="Enter your name">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="authEmail" required placeholder="name@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="authPass" required placeholder="********">
+                    </div>
+                    <button type="submit" class="btn" style="width: 100%; margin-bottom: 1rem;" id="authSubmitBtn">Log In</button>
+                    <p style="text-align: center; font-size: 0.9rem; color: var(--text-muted);">
+                        <span id="authToggleText">Don't have an account?</span> 
+                        <a href="#" onclick="toggleAuthMode(event)" style="color: var(--primary); text-decoration: none; font-weight: 600;" id="authToggleLink">Sign Up</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+
+        <!-- DASHBOARD / LIBRARY VIEW -->
+        <div id="dashboard" class="view">
+            <div class="dashboard-header">
+                <div>
+                    <h2>Study Library</h2>
+                    <p style="color: var(--text-muted);">Access uploaded notes and watch instructional videos.</p>
+                </div>
+                <button class="btn" onclick="switchView('upload')">+ Upload Content</button>
+            </div>
+            
+            <h3 style="margin-bottom: 1rem;">Notes & Documents</h3>
+            <div class="grid" id="notesGrid">
+                <!-- Dynamic notes will inject here -->
+            </div>
+
+            <h3 style="margin: 2rem 0 1rem 0;">Videos</h3>
+            <div class="grid" id="videosGrid">
+                <!-- Dynamic videos will inject here -->
+            </div>
+        </div>
+
+        <!-- UPLOAD VIEW -->
+        <div id="upload" class="view">
+            <div class="form-container">
+                <h2 style="margin-bottom: 1.5rem;">Upload New Content</h2>
+                <form onsubmit="handleUpload(event)">
+                    <div class="form-group">
+                        <label>Content Type</label>
+                        <select id="contentType" class="form-group input" style="width:100%; padding:0.75rem; border-radius:6px; border:1px solid var(--border);" onchange="toggleUploadFields()">
+                            <option value="note">Note / Document</option>
+                            <option value="video">Video Link / File</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" id="uploadTitle" required placeholder="e.g. Calculus Chapter 1">
+                    </div>
+                    <div class="form-group" id="descGroup">
+                        <label>Description / Note Content</label>
+                        <textarea id="uploadDesc" rows="4" required placeholder="Write your notes or description here..."></textarea>
+                    </div>
+                    <div class="form-group" id="urlGroup" style="display:none;">
+                        <label>Video URL (YouTube or Direct Link)</label>
+                        <input type="url" id="uploadUrl" placeholder="https://www.youtube.com/watch?v=...">
+                    </div>
+                    <button type="submit" class="btn" style="width: 100%;">Publish Content</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- CONTACT VIEW -->
+        <div id="contact" class="view">
+            <div class="form-container">
+                <h2 style="margin-bottom: 1.5rem;">Contact Me</h2>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Have questions or feedback? Send a message directly.</p>
+                <form onsubmit="handleContact(event)">
+                    <div class="form-group">
+                        <label>Your Name</label>
+                        <input type="text" required placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label>Your Email</label>
+                        <input type="email" required placeholder="john@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea rows="5" required placeholder="Write your message here..."></textarea>
+                    </div>
+                    <button type="submit" class="btn" style="width: 100%;">Send Message</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2026 StudyHub. Built with HTML, CSS, and JavaScript.</p>
+    </footer>
+
+    <script>
+        // App State & Sample Data
+        let isLoginMode = true;
+        let currentUser = null;
+        
+        let contentData = {
+            notes: [
+                { id: 1, title: "Algebra Fundamentals", desc: "Covers linear equations, quadratic formulas, and basic graphing principles.", author: "Admin" },
+                { id: 2, title: "Computer Science Intro", desc: "Introduction to algorithms, binary logic, and basic data structures.", author: "Admin" }
+            ],
+            videos: [
+                { id: 1, title: "Calculus Limits Explained", url: "https://www.youtube.com/embed/dQw4w9WgXcQ", desc: "A brief walk-through of limits and continuity.", author: "Admin" }
+            ]
+        };
+
+        // View Router
+        function switchView(viewId) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            window.scrollTo(0, 0);
+            if(viewId === 'dashboard') renderContent();
+        }
+
+        // Toggle Auth (Login vs Signup)
+        function toggleAuthMode(e) {
+            e.preventDefault();
+            isLoginMode = !isLoginMode;
+            document.getElementById('authTitle').innerText = isLoginMode ? "Welcome Back" : "Create Account";
+            document.getElementById('authSubmitBtn').innerText = isLoginMode ? "Log In" : "Sign Up";
+            document.getElementById('nameGroup').style.display = isLoginMode ? "none" : "block";
+            document.getElementById('authToggleText').innerText = isLoginMode ? "Don't have an account?" : "Already have an account?";
+            document.getElementById('authToggleLink').innerText = isLoginMode ? "Sign Up" : "Log In";
+        }
+
+        function handleAuth(e) {
+            e.preventDefault();
+            const email = document.getElementById('authEmail').value;
+            currentUser = email;
+            alert(isLoginMode ? "Logged in successfully!" : "Account created successfully!");
+            document.getElementById('authNavBtn').innerText = "Logout";
+            document.getElementById('authNavBtn').onclick = handleLogout;
+            switchView('dashboard');
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            alert("Logged out successfully.");
+            document.getElementById('authNavBtn').innerText = "Log In";
+            document.getElementById('authNavBtn').onclick = () => switchView('auth');
+            switchView('home');
+        }
+
+        // Upload Form Toggles
+        function toggleUploadFields() {
+            const type = document.getElementById('contentType').value;
+            if(type === 'video') {
+                document.getElementById('descGroup').style.display = 'none';
+                document.getElementById('urlGroup').style.display = 'block';
+            } else {
+                document.getElementById('descGroup').style.display = 'block';
+                document.getElementById('urlGroup').style.display = 'none';
+            }
+        }
+
+        // Handle Content Upload
+        function handleUpload(e) {
+            e.preventDefault();
+            if(!currentUser) {
+                alert("Please log in first to upload content.");
+                switchView('auth');
+                return;
+            }
+
+            const type = document.getElementById('contentType').value;
+            const title = document.getElementById('uploadTitle').value;
+
+            if(type === 'note') {
+                const desc = document.getElementById('uploadDesc').value;
+                contentData.notes.push({ id: Date.now(), title, desc, author: currentUser });
+            } else {
+                let url = document.getElementById('uploadUrl').value;
+                // Simple YouTube link convert to embed if needed
+                if(url.includes("watch?v=")) {
+                    url = url.replace("watch?v=", "embed/");
+                }
+                contentData.videos.push({ id: Date.now(), title, url, author: currentUser });
+            }
+
+            alert("Content uploaded successfully!");
+            document.getElementById('uploadTitle').value = '';
+            document.getElementById('uploadDesc').value = '';
+            document.getElementById('uploadUrl').value = '';
+            switchView('dashboard');
+        }
+
+        // Render Library Grid
+        function renderContent() {
+            const notesGrid = document.getElementById('notesGrid');
+            const videosGrid = document.getElementById('videosGrid');
+
+            notesGrid.innerHTML = contentData.notes.map(note => `
+                <div class="card">
+                    <div>
+                        <h3>${note.title}</h3>
+                        <p>${note.desc}</p>
+                    </div>
+                    <small style="color: var(--text-muted);">By: ${note.author}</small>
+                </div>
+            `).join('');
+
+            videosGrid.innerHTML = contentData.videos.map(video => `
+                <div class="card">
+                    <div>
+                        <h3>${video.title}</h3>
+                        <div style="position: relative; padding-bottom: 56.25%; height: 0; margin-bottom: 1rem;">
+                            <iframe src="${video.url}" style="position: absolute; top:0; left:0; width:100%; height:100%; border:0; border-radius:4px;" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    <small style="color: var(--text-muted);">By: ${video.author}</small>
+                </div>
+            `).join('');
+        }
+
+        // Contact Handler
+        function handleContact(e) {
+            e.preventDefault();
+            alert("Thank you! Your message has been sent successfully.");
+            e.target.reset();
+            switchView('home');
+        }
+
+        // Initial render
+        renderContent();
+    </script>
+</body>
+</html>
